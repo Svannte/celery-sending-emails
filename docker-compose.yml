@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - "8080:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-7)4@jct)mlnq^bk=%x_9y^4x7f6zhe4virwnp+ctn-(*xwf49v
+      - DJANGO_ALLOWED_HOST=localhost 127.0.0.1 [::1]
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+
+  celery:
+    restart: always
+    build:
+      context: .
+    command: celery -A django_emails worker -l info
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-7)4@jct)mlnq^bk=%x_9y^4x7f6zhe4virwnp+ctn-(*xwf49v
+      - DJANGO_ALLOWED_HOST=localhost 127.0.0.1 [::1]
+    depends_on:
+      - redis
+      - web
+
+
+  flower:
+    build: .
+    command: celery -A django_emails flower --loglevel=DEBUG --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-7)4@jct)mlnq^bk=%x_9y^4x7f6zhe4virwnp+ctn-(*xwf49v
+      - DJANGO_ALLOWED_HOST=localhost 127.0.0.1 [::1]
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - web
+      - redis
+      - celery

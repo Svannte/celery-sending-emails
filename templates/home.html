@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block title %}OK{% endblock title %}
+
+{% block content %}
+    <div class="card">
+    <div class="card-body">
+    {% if user.is_authenticated %}
+        <h1>hello {{ user.name }}</h1>
+        <a href={% url 'profile' %}>Profile</a>
+        <br>
+        <a href={% url 'message' %}>Send Message</a>
+        {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <br>
+        <a href="{% url 'register' %}">Sign up</a>
+    {% endif %}
+    </div>
+    </div>
+{% endblock content %}
